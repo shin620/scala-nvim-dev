@@ -44,4 +44,5 @@ nnoremap <leader>fh :Telescope help_tags<CR>
 
 " vim-airline設定
 let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
 
