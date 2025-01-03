@@ -1,4 +1,4 @@
-# ベースイメージを選択 (例: Ubuntu)
+# ベースイメージを選択
 FROM ubuntu:24.04
 
 # 必要なツールをインストール
@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     scala \
     python3 \
     python3-pip \
+    ripgrep \
     neovim \
     && apt-get clean
 
@@ -32,8 +33,19 @@ RUN curl -fLo /root/.local/share/nvim/site/autoload/plug.vim --create-dirs \
 RUN mkdir -p /root/.config/nvim
 COPY init.vim /root/.config/nvim/init.vim
 
+# Lua設定ファイルを追加
+RUN mkdir -p /root/.config/nvim/lua/config
+COPY nvim_tree.lua /root/.config/nvim/lua/config/nvim_tree.lua
+COPY telescope.lua /root/.config/nvim/lua/config/telescope.lua
+
 # PlugInstallを実行してプラグインをインストール
 RUN nvim --headless +PlugInstall +qall
+
+# Coc.nvim 用の拡張機能をインストール
+RUN mkdir -p ~/.config/coc/extensions && \
+    cd ~/.config/coc/extensions && \
+    echo '{"dependencies": {"coc-metals": "latest"}}' > package.json && \
+    npm install --legacy-peer-deps --omit=dev --ignore-scripts --no-package-lock --no-bin-links
 
 # Scala Language Server (metals) をインストール
 RUN curl -fLo /usr/local/bin/coursier \
